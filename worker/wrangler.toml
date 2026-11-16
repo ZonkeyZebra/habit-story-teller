@@ -4,11 +4,11 @@ compatibility_date = "2025-01-01"
 
 [[kv_namespaces]]
 binding = "DATA"
-id = "PASTE_KV_NAMESPACE_ID"
+id = "80288deb4f68479abd611b3d5c04caa8"
 
 [vars]
-ALLOWED_ORIGIN = "https://YOUR-GITHUB-USERNAME.github.io"
-GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID.apps.googleusercontent.com"
+ALLOWED_ORIGIN = "https://ZonkeyZebra.github.io"
+GOOGLE_CLIENT_ID = "609349009818-qcg6ulrkrj80u9626db288sdthtespa9.apps.googleusercontent.com"
 MODEL = "claude-haiku-5-5"
 DAILY_LIMIT = "30"
 # Secrets (NOT stored here): ANTHROPIC_API_KEY, ALLOWED_EMAILS
