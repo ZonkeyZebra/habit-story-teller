@@ -2,6 +2,8 @@
 import { CONFIG } from './config.js';
 let token = sessionStorage.getItem('idt') || '';
 export const setToken = t => { token = t; sessionStorage.setItem('idt', t); };
+export const hasToken = () => !!token;
+export const clearToken = () => { token = ''; sessionStorage.removeItem('idt'); };
 async function call(path, opts = {}) {
   const r = await fetch(CONFIG.WORKER_URL + path, { ...opts, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token } });
   if (r.status === 401) throw Object.assign(new Error('Session expired'), { auth: true });

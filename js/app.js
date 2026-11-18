@@ -1,15 +1,17 @@
 // Bootstrap, auth gate, and event handling.
 import { init, state, save } from './store.js';
-import { initAuth } from './auth.js';
+import { hasToken, clearToken } from './api.js';
 import { render, ui } from './ui.js';
 import { uid, today, ending, score } from './engine.js';
 import { nextBeat } from './story.js';
-let view = 'today', busy = false;
+let busy = false;
+const VIEWS = ['today', 'habits', 'story', 'summary'];
+const cur = () => VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'today';
 const $ = s => document.querySelector(s);
-const draw = () => { $('#view').innerHTML = render(view); document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.view === view)); };
+const draw = () => { const v = cur(); $('#view').innerHTML = render(v); document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.hash === '#' + v)); };
 const toast = m => { const t = $('#toast'); t.textContent = m; t.className = 'show'; setTimeout(() => t.className = '', 4000); };
-const login = () => { $('#app').hidden = true; $('#login').hidden = false; };
-async function start() { $('#login').hidden = true; try { await init(); } catch { return login(); } $('#app').hidden = false; draw(); }
+const login = () => { clearToken(); location.replace('login.html'); };
+async function start() { try { await init(); } catch { return login(); } $('#app').hidden = false; draw(); }
 
 async function beat(kind) {
   if (busy) return; busy = true; toast('Writing...');
@@ -29,12 +31,12 @@ const acts = {
   edit(el) { ui.editing = el.dataset.id; draw(); }, new() { ui.editing = 'new'; draw(); }, cancel() { ui.editing = null; draw(); },
   del(el) { if (!confirm('Delete this habit?')) return; state.tasks = state.tasks.filter(t => t.id !== el.dataset.id); save(); draw(); },
   full() { ui.full = !ui.full; draw(); },
+  signout() { localStorage.removeItem('hst'); login(); },
   restart() { if (!confirm('End this campaign and start a new one?')) return; state.campaign = null; state.done = {}; state.pending = []; save(); draw(); }
 };
 document.addEventListener('click', e => {
-  const el = e.target.closest('[data-act],[data-view]'); if (!el) return;
-  if (el.dataset.view) { view = el.dataset.view; ui.editing = null; draw(); }
-  else if (el.type !== 'checkbox') acts[el.dataset.act]?.(el);
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  if (el.type !== 'checkbox') acts[el.dataset.act]?.(el);
 });
 document.addEventListener('change', e => { if (e.target.dataset.act === 'toggle') acts.toggle(e.target); });
 document.addEventListener('submit', e => {
@@ -50,5 +52,5 @@ document.addEventListener('submit', e => {
   save(); draw();
 });
 window.addEventListener('reauth', login);
-const wait = () => window.google?.accounts?.id ? (initAuth(start), sessionStorage.getItem('idt') && start()) : setTimeout(wait, 100);
-wait();
+window.addEventListener('hashchange', () => { ui.editing = null; draw(); });
+hasToken() ? start() : login();
