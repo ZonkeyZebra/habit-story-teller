@@ -4,6 +4,8 @@ import { isDue, today, dayNumber, score, ending } from './engine.js';
 export const ui = { editing: null, full: false, viewing: null };
 export const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+const FREQS = [['daily', 'Daily'], ['days', 'Certain Days'], ['every', 'Every N Days']];
+const EFFORT = [[1, 'Quick'], [2, 'Easy'], [3, 'Medium'], [4, 'Hard'], [5, 'Epic']];
 const empty = (h, p) => `<h2>${h}</h2><p class="muted">${p}</p>`;
 const gauge = m => `<svg class="gauge" viewBox="0 0 100 56" role="img" aria-label="Chaos ${m} of 100"><path class="trk" d="M10 50A40 40 0 0 1 90 50" pathLength="100"/><path class="val" d="M10 50A40 40 0 0 1 90 50" pathLength="100" style="stroke-dasharray:${m} 100"/><text x="50" y="48" text-anchor="middle">${m}</text></svg>`;
 const beatHtml = b => `<article class="beat"><h3>Day ${b.day}: ${esc(b.highlight)}</h3>${b.twist ? '<span class="twist">Chaos twist (rolled ' + b.roll + ')</span>' : ''}${b.text.split(/\n+/).map(p => `<p>${esc(p)}</p>`).join('')}</article>`;
@@ -15,13 +17,17 @@ function today_() {
   <ul class="tasks">${due.map(t => `<li><label><input type="checkbox" data-act="toggle" data-id="${t.id}" ${done.includes(t.id) ? 'checked' : ''}><span>${esc(t.name)}</span><b>${t.points}</b></label></li>`).join('') || '<li class="muted">Nothing due today.</li>'}</ul>
   ${c.ending ? '<p class="muted">This campaign has ended. See the Summary.</p>' : `<button class="primary" data-act="beat" ${state.pending.length ? '' : 'disabled'}>Tell the next beat (${state.pending.length})</button>`}`;
 }
+// Progressive form: radio inputs styled as segmented buttons; CSS (:has) shows only the controls that apply.
 function form(t) {
   const x = t || { name: '', freq: 'daily', days: [1, 2, 3, 4, 5], every: 2, points: 3 };
-  return `<form id="taskform" class="card" data-id="${t?.id || ''}"><input name="name" placeholder="Habit or task" value="${esc(x.name)}" required aria-label="Name">
-  <select name="freq" aria-label="Frequency">${[['daily', 'Every day'], ['days', 'Certain weekdays'], ['every', 'Every N days']].map(([v, l]) => `<option value="${v}" ${x.freq === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
-  <div class="row">${DAYS.map((n, i) => `<label class="chip"><input type="checkbox" name="d" value="${i}" ${x.days.includes(i) ? 'checked' : ''}>${n}</label>`).join('')}</div>
-  <label>Every <input name="every" type="number" min="1" max="30" value="${x.every}" style="width:80px"> days (for "Every N days")</label>
-  <label>Effort: <output id="pv">${x.points}</output>/5 <input name="points" type="range" min="1" max="5" value="${x.points}" oninput="pv.value=this.value"></label>
+  return `<form id="taskform" class="card" data-id="${t?.id || ''}">
+  <input name="name" placeholder="Habit or task" value="${esc(x.name)}" required aria-label="Name">
+  <span class="lbl" id="lbl-freq">How often</span>
+  <div class="seg" role="radiogroup" aria-labelledby="lbl-freq">${FREQS.map(([v, l]) => `<label><input type="radio" name="freq" value="${v}" ${x.freq === v ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div>
+  <div class="when when-days"><span class="lbl">On these days</span><div class="row">${DAYS.map((n, i) => `<label class="chip"><input type="checkbox" name="d" value="${i}" ${x.days.includes(i) ? 'checked' : ''}>${n}</label>`).join('')}</div></div>
+  <div class="when when-every"><label>Every <input name="every" type="number" min="1" max="30" value="${x.every}" style="width:80px"> days</label></div>
+  <span class="lbl" id="lbl-effort">Effort</span>
+  <div class="seg effort" role="radiogroup" aria-labelledby="lbl-effort">${EFFORT.map(([v, l]) => `<label><input type="radio" name="points" value="${v}" ${x.points === v ? 'checked' : ''}><span>${l}<small>${v}</small></span></label>`).join('')}</div>
   <button class="primary">${t ? 'Save changes' : 'Add habit'}</button> <button type="button" class="link" data-act="cancel">Cancel</button></form>`;
 }
 function habits() {

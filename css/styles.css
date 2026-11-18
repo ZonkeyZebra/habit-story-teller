@@ -42,4 +42,26 @@ button.link{background:none;border:0;color:var(--moss);text-decoration:underline
 #banner{margin:16px 18px 0;padding:12px 14px;border-radius:var(--r);background:#fbe9ee;border:1px solid var(--berry)}#banner a{color:var(--berry)}
 @media(min-width:800px){#banner{margin:24px 32px 0}}
 .bar{height:8px;background:var(--mist);border-radius:99px;margin:8px 0}.bar i{display:block;height:100%;background:var(--moss);border-radius:99px}.bar.hot i{background:var(--berry)}
+
+/* Add-habit form: progressive layout (segmented buttons, labeled effort, only relevant controls shown) */
+.lbl{display:block;font-size:.8rem;color:#5d6d68;margin:10px 0 4px}
+.seg{display:flex;gap:3px;background:var(--mist);border-radius:var(--r);padding:3px;margin-bottom:10px}
+.seg label{flex:1;position:relative;text-align:center;cursor:pointer}
+.seg input{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer}
+.seg span{display:block;padding:8px 2px;border-radius:8px;font-size:.9rem}
+.seg input:checked+span{background:#fff;font-weight:600}
+.seg label:has(input:focus-visible){outline:3px solid var(--berry);outline-offset:2px;border-radius:8px}
+.seg.effort{background:none;padding:0}
+.seg.effort span{background:#fff;border:1px solid var(--mist);font-size:.85rem}
+.seg.effort input:checked+span{background:var(--berry);border-color:var(--berry);color:#fff}
+.seg.effort small{display:block;font-size:.7rem;opacity:.8}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.chip:has(input:checked){background:var(--moss);color:#fff}
+.chip:has(input:focus-visible){outline:3px solid var(--berry);outline-offset:2px}
+.when{margin-bottom:10px}
+#taskform:has([name=freq][value=daily]:checked) .when{display:none}
+#taskform:has([name=freq][value=days]:checked) .when-every{display:none}
+#taskform:has([name=freq][value=every]:checked) .when-days{display:none}
+
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}

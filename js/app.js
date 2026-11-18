@@ -76,6 +76,7 @@ document.addEventListener('submit', e => {
   e.preventDefault(); const f = e.target, d = new FormData(f);
   if (f.id === 'taskform') {
     const t = { id: f.dataset.id || uid(), name: d.get('name').trim(), freq: d.get('freq'), days: d.getAll('d').map(Number), every: +d.get('every') || 1, points: +d.get('points'), active: true };
+    if (t.freq === 'days' && !t.days.length) return toast('Pick at least one day');
     const i = state.tasks.findIndex(x => x.id === t.id); i < 0 ? state.tasks.push(t) : state.tasks[i] = t; ui.editing = null;
   }
   if (f.id === 'campform') {
