@@ -7,7 +7,7 @@ binding = "DATA"
 id = "80288deb4f68479abd611b3d5c04caa8"
 
 [vars]
-ALLOWED_ORIGIN = "https://ZonkeyZebra.github.io"
+ALLOWED_ORIGIN = "https://zonkeyzebra.github.io"
 GOOGLE_CLIENT_ID = "609349009818-qcg6ulrkrj80u9626db288sdthtespa9.apps.googleusercontent.com"
 MODEL = "claude-haiku-5-5"
 DAILY_LIMIT = "30"
