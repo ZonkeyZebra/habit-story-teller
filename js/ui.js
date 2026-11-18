@@ -1,7 +1,7 @@
 // Views: pure functions returning HTML strings.
-import { state } from './store.js';
+import { state, storage } from './store.js';
 import { isDue, today, dayNumber, score, ending } from './engine.js';
-export const ui = { editing: null, full: false };
+export const ui = { editing: null, full: false, viewing: null };
 export const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 const empty = (h, p) => `<h2>${h}</h2><p class="muted">${p}</p>`;
@@ -45,4 +45,19 @@ function summary() {
   <p><button class="link" data-act="full">${ui.full ? 'Hide' : 'Read'} the whole story</button> <button class="link" data-act="restart">New campaign</button></p>
   ${ui.full ? c.beats.map(beatHtml).join('') : ''}`;
 }
-export const render = v => ({ today: today_, habits, story, summary }[v])();
+const kb = n => Math.round(n / 1000) + ' KB';
+const meter = () => { const s = storage(); return `<div class="card"><b>Storage: ${s.pct}% used</b> (${kb(s.used)} of ${kb(s.limit)})<div class="bar ${s.pct >= 80 ? 'hot' : ''}"><i style="width:${s.pct}%"></i></div><small class="muted">Your habits, current campaign and past campaigns share this ${kb(s.limit)} limit. ${s.measured ? 'Your campaigns average' : 'A typical 14-day campaign uses'} about ${kb(s.avg)}, so there is room for roughly ${s.room} more. When storage is full, new changes stop syncing to your account until you export and delete old campaigns.</small></div>`; };
+const stamp = h => h.status === 'completed' ? `<span class="badge ${h.ending}">${h.ending} ending</span>` : '<span class="badge">ended early</span>';
+function past() {
+  const h = state.history, v = ui.viewing && h.find(x => x.id === ui.viewing);
+  if (v) return `<p><button class="link" data-act="back">Back to past campaigns</button></p><h2>${esc(v.hero)}</h2>
+  <p class="muted">${esc(v.genre)}, ${v.start} to ${v.endedOn}, ${v.length}-day plan</p>
+  <div class="card">${stamp(v)} ${pct(v.final.ratio)} of effort points earned (${v.final.got}/${v.final.max}) over ${v.beats.length} story beats.</div>
+  <h3>Highlights</h3><ul>${v.beats.map(b => `<li>Day ${b.day}: ${esc(b.highlight)}</li>`).join('') || '<li class="muted">None.</li>'}</ul>
+  <h3>Collected</h3><div class="row">${v.collected.map(i => `<span class="chip">${esc(i)}</span>`).join('') || '<span class="muted">Nothing.</span>'}</div>
+  <p><button class="link" data-act="full">${ui.full ? 'Hide' : 'Read'} the whole story</button> <button class="link" data-act="export" data-id="${v.id}">Export story</button> <button class="link" data-act="rmpast" data-id="${v.id}">Delete this campaign</button></p>
+  ${ui.full ? v.beats.map(beatHtml).join('') : ''}`;
+  return `<h2>Past campaigns</h2>${meter()}${h.length ? '<p><button class="link" data-act="exportall">Export all as a backup file</button></p>' : ''}${h.map(x => `<button class="card hist" data-act="open" data-id="${x.id}"><h3>${esc(x.hero)}</h3><div>${stamp(x)} ${pct(x.final.ratio)}</div><small class="muted">${esc(x.genre)}, ${x.start} to ${x.endedOn}, ${x.beats.length} beats</small></button>`).join('') || '<p class="muted">Finished campaigns show up here. Finish a campaign, or start a new one from the Summary page, and it will be saved.</p>'}`;
+}
+const pct = r => Math.round(r * 100) + '%';
+export const render = v => ({ today: today_, habits, story, summary, past }[v])();

@@ -16,7 +16,7 @@ export default {
         if (req.method === 'GET') return J({ data: JSON.parse((await env.DATA.get(key)) || 'null') }, 200, cors);
         if (req.method === 'PUT') {
           const body = await req.text();
-          if (body.length > 500000) return J({ error: 'Too large' }, 413, cors);
+          if (new TextEncoder().encode(body).length > 500000) return J({ error: 'Storage limit reached (500 KB)' }, 413, cors); // keep in sync with js/config.js
           await env.DATA.put(key, body); return J({ ok: 1 }, 200, cors);
         }
       }
