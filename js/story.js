@@ -3,7 +3,16 @@ import { generate } from './api.js';
 import { score, rollChaos, ending, dayNumber } from './engine.js';
 const SYS = 'You narrate a serialized story powered by a person\'s real-life habits. Reply with ONLY a JSON object, no markdown: {"text":"a story beat of 2-3 short paragraphs, about 200 words","summary":"updated running summary of the whole story so far, under 150 words","highlight":"one-line headline for this beat","collected":["0-2 short names of items, allies or discoveries gained"]}. Never contradict established facts and avoid repeating earlier plot devices.';
 // Pull the JSON object out of the reply even if the model adds stray text; null if unusable or cut off.
-const parse = t => { try { const o = JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)); return typeof o.text === 'string' && typeof o.summary === 'string' ? o : null; } catch { return null; } };
+const parse = t => {
+  if (typeof t !== 'string') return null;
+  try {
+    const start = t.indexOf('{'), end = t.lastIndexOf('}');
+    if (start < 0 || end < start) return null;
+    const o = JSON.parse(t.slice(start, end + 1));
+    if (typeof o.text !== 'string' || !o.text.trim() || typeof o.summary !== 'string' || typeof o.highlight !== 'string' || !Array.isArray(o.collected) || !o.collected.every(x => typeof x === 'string')) return null;
+    return o;
+  } catch { return null; }
+};
 export async function nextBeat(s, pending, kind) {
   const c = s.campaign, ch = rollChaos(c.chaos), sc = score(s), tier = ending(sc.ratio);
   const prompt = [

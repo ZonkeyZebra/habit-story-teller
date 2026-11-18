@@ -38,7 +38,10 @@ export default {
         if (!r.ok) { console.error('Anthropic', r.status, (await r.text()).slice(0, 300)); return J({ error: `Story service error (${r.status})` }, 502, cors); }
         await env.DATA.put(rk, String(n + 1), { expirationTtl: 172800 });
         const d = await r.json();
-        return J({ text: d.content?.[0]?.text || '', stop: d.stop_reason }, 200, cors);
+        const text = Array.isArray(d.content)
+          ? d.content.filter(block => block?.type === 'text' && typeof block.text === 'string').map(block => block.text).join('\n')
+          : '';
+        return J({ text, stop: d.stop_reason }, 200, cors);
       }
       return J({ error: 'Not found' }, 404, cors);
     } catch (e) { console.error(e); return J({ error: 'Server error' }, 500, cors); }
