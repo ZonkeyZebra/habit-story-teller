@@ -30,6 +30,7 @@ button.link{background:none;border:0;color:var(--moss);text-decoration:underline
 .gauge{width:130px}.gauge path{fill:none;stroke-width:9;stroke-linecap:round}
 .gauge .trk{stroke:var(--mist)}.gauge .val{stroke:var(--berry);transition:stroke-dasharray .6s}
 .gauge text{font:600 14px Newsreader,serif;fill:var(--ink)}
+.chaos-control{display:flex;flex:1;flex-direction:column;gap:4px}.chaos-control input[type=range]{width:100%;margin:0}
 .beat{font-family:Newsreader,Georgia,serif;font-size:1.15rem;line-height:1.65;max-width:62ch;margin:0 0 28px}
 .beat h3{font-size:1.1rem;color:var(--moss)}.beat .twist{color:var(--berry);font:600 .8rem 'Instrument Sans',sans-serif}
 .card{background:#fff;border:1px solid var(--mist);border-radius:var(--r);padding:14px;margin-bottom:12px}

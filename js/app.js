@@ -59,6 +59,19 @@ document.addEventListener('click', e => {
   if (el.type !== 'checkbox') acts[el.dataset.act]?.(el);
 });
 document.addEventListener('change', e => { if (e.target.dataset.act === 'toggle') acts.toggle(e.target); });
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.dataset.act !== 'chaos' || !state.campaign || state.campaign.ending) return;
+  const value = Number(el.value);
+  if (!Number.isInteger(value) || value < 0 || value > 100) return;
+  state.campaign.chaos = value;
+  $('#chaos-value').value = value;
+  const gauge = $('.gauge');
+  gauge.setAttribute('aria-label', `Chaos ${value} of 100`);
+  gauge.querySelector('.val').style.strokeDasharray = `${value} 100`;
+  gauge.querySelector('text').textContent = value;
+  save();
+});
 document.addEventListener('submit', e => {
   e.preventDefault(); const f = e.target, d = new FormData(f);
   if (f.id === 'taskform') {

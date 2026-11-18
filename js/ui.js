@@ -11,7 +11,7 @@ const beatHtml = b => `<article class="beat"><h3>Day ${b.day}: ${esc(b.highlight
 function today_() {
   const c = state.campaign; if (!c) return empty('No campaign yet', 'Start one in the Story tab.');
   const d = today(), due = state.tasks.filter(t => isDue(t, d, c.start)), done = state.done[d] || [];
-  return `<h2>Day ${dayNumber(c)} of ${c.length}</h2><div class="meter">${gauge(c.chaos)}<span class="muted">Chaos meter</span></div>
+  return `<h2>Day ${dayNumber(c)} of ${c.length}</h2><div class="meter">${gauge(c.chaos)}<label class="chaos-control">Set chaos for the next story beat: <output id="chaos-value">${c.chaos}</output>/100<input type="range" min="0" max="100" value="${c.chaos}" data-act="chaos" aria-label="Set chaos meter" ${c.ending ? 'disabled' : ''}></label></div>
   <ul class="tasks">${due.map(t => `<li><label><input type="checkbox" data-act="toggle" data-id="${t.id}" ${done.includes(t.id) ? 'checked' : ''}><span>${esc(t.name)}</span><b>${t.points}</b></label></li>`).join('') || '<li class="muted">Nothing due today.</li>'}</ul>
   ${c.ending ? '<p class="muted">This campaign has ended. See the Summary.</p>' : `<button class="primary" data-act="beat" ${state.pending.length ? '' : 'disabled'}>Tell the next beat (${state.pending.length})</button>`}`;
 }

@@ -6,7 +6,7 @@ A habit tracker where completing real-life tasks writes an AI-generated story. H
 - **Habits:** add tasks with a frequency (daily, certain weekdays, every N days) and an effort rating (1-5 points). Edit them any time; the score is recalculated across the whole campaign from your current habits.
 - **Campaigns:** pick a main character, genre, notes and a length in days. Check off habits on **Today**, then press **Tell the next beat**; the completed tasks become in-story deeds.
 - **Memory:** each beat sends the AI a rolling story summary plus the last three beats, so the plot stays consistent. The AI updates the summary each time.
-- **Chaos:** every beat rolls a d20 plus a bonus from the chaos meter. High rolls trigger a twist and reset the meter; calm beats raise it, so twists get more likely the longer the story is steady.
+- **Chaos:** every beat rolls a d20 plus a bonus from the chaos meter. High rolls trigger a twist and reset the meter; calm beats raise it, so twists get more likely the longer the story is steady. Adjust the 0-100 meter on **Today** to tune the next beat's twist chance.
 - **Endings:** at the finale, performance of 75%+ gives a good ending, 45%+ mid, below that bad.
 - **Summary:** score, highlights, collected items, and a read-the-whole-story view.
 
