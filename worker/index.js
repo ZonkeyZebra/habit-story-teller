@@ -33,11 +33,12 @@ export default {
         const r = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: { 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-          body: JSON.stringify({ model: env.MODEL, max_tokens: 900, system: String(system).slice(0, 3000), messages: [{ role: 'user', content: String(prompt).slice(0, 12000) }] })
+          body: JSON.stringify({ model: env.MODEL, max_tokens: 1500, system: String(system).slice(0, 3000), messages: [{ role: 'user', content: String(prompt).slice(0, 12000) }] })
         });
         if (!r.ok) { console.error('Anthropic', r.status, (await r.text()).slice(0, 300)); return J({ error: `Story service error (${r.status})` }, 502, cors); }
         await env.DATA.put(rk, String(n + 1), { expirationTtl: 172800 });
-        return J({ text: (await r.json()).content?.[0]?.text || '' }, 200, cors);
+        const d = await r.json();
+        return J({ text: d.content?.[0]?.text || '', stop: d.stop_reason }, 200, cors);
       }
       return J({ error: 'Not found' }, 404, cors);
     } catch (e) { console.error(e); return J({ error: 'Server error' }, 500, cors); }
