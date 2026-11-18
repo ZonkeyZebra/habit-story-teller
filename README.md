@@ -1,6 +1,13 @@
 # Habit Storyteller
 
-A habit tracker where completing real-life tasks writes an AI-generated story. Hit your habits and the campaign ends well; slack off and it doesn't.
+## Description
+Habit Storyteller is a habit tracker where completing real-life tasks writes an AI-generated story. Users add habits with a schedule and an effort rating, then start a campaign by choosing a hero, genre, notes, and length. Each day they check off habits and press "Tell the next beat" to see the story advance. A chaos meter adds random twists, and the campaign ends in a good, bittersweet, or bad ending depending on how well they kept up. Users can customize both their habits and the story itself.
+
+## Problem This Solves
+Most habit trackers are plain checklists, so motivation fades after a few days. Habit Storyteller gamifies the experience: the story only moves forward when you do your habits, and the ending depends on your consistency. This gives users a reason to return each day and makes progress feel meaningful. This will help users maintain motivation and momentum as they aim to develop habits and complete tasks.
+
+## AI Integration
+This project integrates AI by having AI as a core feature to create story beats based off of a user's prefernces and the tasks and habits they complete throughout the day. Claude generates each story beat from the user's hero, genre, and notes, and shows the habits they just completed as in-story deeds. To keep the plot consistent, each request includes a rolling summary of the story plus the last three beats, and the AI updates the summary every time. The prompt also includes the user's current habit performance, so the AI steers toward a good, mid, or bad ending, and it adds a twist when the chaos system triggers one. The AI returns structured JSON (story text, summary, headline, collected items) that the app displays and stores. All AI calls go through a server-side proxy, so the API key is never exposed to users.
 
 ## How it works
 - **Habits:** add tasks with a frequency (daily, certain weekdays, every N days) and an effort rating (1-5 points). Edit them any time; the score is recalculated across the whole campaign from your current habits.
@@ -9,58 +16,3 @@ A habit tracker where completing real-life tasks writes an AI-generated story. H
 - **Chaos:** every beat rolls a d20 plus a bonus from the chaos meter. High rolls trigger a twist and reset the meter; calm beats raise it, so twists get more likely the longer the story is steady. Adjust the 0-100 meter on **Today** to tune the next beat's twist chance.
 - **Endings:** at the finale, performance of 75%+ gives a good ending, 45%+ mid, below that bad.
 - **Summary:** score, highlights, collected items, and a read-the-whole-story view.
-
-## Structure
-```
-index.html          page shell
-css/styles.css      look and responsive layout (bottom nav on mobile, sidebar on desktop)
-js/config.js        your public IDs (Google client ID, Worker URL)
-js/app.js           startup, sign-in gate, events
-js/ui.js            views
-js/engine.js        schedules, scoring, chaos, endings
-js/story.js         prompt building and AI reply parsing
-js/store.js         state + sync     js/api.js  Worker calls     js/auth.js  Google sign-in
-worker/index.js     Cloudflare Worker (auth check, data storage, Anthropic proxy)
-worker/wrangler.toml Worker settings (no secrets)
-```
-The site (GitHub Pages) never sees the Anthropic key. Browser -> Worker -> Anthropic.
-
-## Setup
-
-### 1. Anthropic key
-Create a key at console.anthropic.com (API keys). Set a monthly spend limit there. You'll paste it into Cloudflare in step 3; never into the repo.
-
-### 2. Google sign-in
-1. console.cloud.google.com: create a project, then **APIs & Services > OAuth consent screen** (External; add your friends as Test users while in testing mode).
-2. **Credentials > Create credentials > OAuth client ID > Web application**.
-3. Under **Authorized JavaScript origins** add `https://YOUR-GITHUB-USERNAME.github.io` and `http://localhost:8000` (for local testing). No redirect URI is needed.
-4. Copy the Client ID into `js/config.js` and `worker/wrangler.toml`. A client ID is public, not a secret.
-
-### 3. Cloudflare Worker
-```bash
-npm i -g wrangler && wrangler login
-cd worker
-wrangler kv namespace create DATA        # paste the returned id into wrangler.toml
-# set ALLOWED_ORIGIN and GOOGLE_CLIENT_ID in wrangler.toml
-wrangler secret put ANTHROPIC_API_KEY    # paste key when prompted
-wrangler secret put ALLOWED_EMAILS       # e.g. you@gmail.com,friend@gmail.com
-wrangler deploy
-```
-Copy the printed `https://habit-story.<you>.workers.dev` URL into `js/config.js` as `WORKER_URL`. `ALLOWED_EMAILS` is a secret so friends' emails don't land in a public repo. Leave it unset to allow any Google account (not recommended).
-
-### 4. GitHub Pages
-Push the repo, then **Settings > Pages > Deploy from branch > main / root**. Your site appears at `https://YOUR-GITHUB-USERNAME.github.io/REPO/`. The origin (without the path) is what goes in steps 2 and 3.
-
-### Local testing
-`python3 -m http.server 8000` in the repo root, then open http://localhost:8000. Temporarily set the Worker's `ALLOWED_ORIGIN` to `http://localhost:8000` (redeploy) or run `wrangler dev`.
-
-## Security checklist
-- The only secrets are `ANTHROPIC_API_KEY` and `ALLOWED_EMAILS`, stored as Worker secrets. `.gitignore` blocks `.dev.vars` and `.env`.
-- The Worker rejects other origins, verifies the Google token and email allowlist, caps each user at `DAILY_LIMIT` stories per day, fixes the model and token limit server-side, and caps stored data size.
-- If a key is ever committed, revoke it in the Anthropic console immediately; deleting the commit is not enough.
-
-## Known prototype limits
-- Google ID tokens last about an hour; after that you are asked to sign in again.
-- Cloud sync is last-write-wins (one device at a time).
-- Starting a new campaign replaces the old one (no history yet).
-- Only the allowlist and daily cap limit usage; there is no billing per user.
