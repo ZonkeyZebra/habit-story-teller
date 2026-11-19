@@ -2,12 +2,13 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Habit Storyteller</title>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css"></head>
-<body>
+<body data-scene="city">
 <div id="app" hidden>
-<nav id="nav"><span class="brand">Habit Storyteller</span><a href="#today">Today</a><a href="#habits">Habits</a><a href="#story">Story</a><a href="#summary">Summary</a><a href="#past">Past</a><button class="out" data-act="signout">Sign out</button></nav>
+<nav id="nav" aria-label="Main"><span class="brand">Habit Storyteller</span><a href="#today" data-icon="lantern">Today</a><a href="#habits" data-icon="shield">Habits</a><a href="#story" data-icon="book">Story</a><a href="#summary" data-icon="star">Summary</a><a href="#past" data-icon="scroll">Past</a><a href="#settings" data-icon="gear">Settings</a></nav>
 <div class="content"><div id="banner" hidden role="alert"></div><main id="view"></main></div></div>
+<div id="found" role="status" aria-live="polite"></div>
 <div id="toast" role="status"></div>
 <script type="module" src="js/app.js"></script>
 </body></html>

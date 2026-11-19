@@ -1,67 +1,207 @@
-:root{--ink:#17232e;--paper:#f1f4f3;--mist:#d9e1de;--moss:#3d6b5e;--berry:#b3365f;--r:10px}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 'Instrument Sans',system-ui,sans-serif}
-h1,h2,h3{font-family:Newsreader,Georgia,serif;font-weight:600;margin:.2em 0 .5em}
-#login{min-height:100vh;display:grid;place-content:center;gap:12px;text-align:center}
-#login h1{font-size:2.6rem}
-#app{display:grid;min-height:100vh}
-main{padding:20px 18px 96px;max-width:720px;width:100%;margin:auto}
-#nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--ink);z-index:5}
-[hidden]{display:none!important}
-.brand{display:none}
-#nav a,#nav button{flex:1;padding:14px 4px;background:none;border:0;color:#b9c6c1;font:inherit;font-size:.78rem;text-align:center;text-decoration:none;cursor:pointer}
-#nav a.on{color:#fff;box-shadow:inset 0 3px var(--berry)}
-@media(min-width:800px){#app{grid-template-columns:190px 1fr}#nav{position:sticky;top:0;height:100vh;flex-direction:column;justify-content:flex-start;padding-top:24px}#nav a,#nav button{text-align:left;padding:12px 22px;flex:0;font-size:1rem}#nav a.on{box-shadow:inset 3px 0 var(--berry)}.brand{display:block;color:#fff;font:600 1.3rem Newsreader,Georgia,serif;padding:0 22px 18px}#nav .out{margin-top:auto;margin-bottom:20px}main{padding:32px}}
-:focus-visible{outline:3px solid var(--berry);outline-offset:2px}
-button,input,select,textarea{font:inherit}
-input,select,textarea{width:100%;padding:10px;border:1px solid var(--mist);border-radius:var(--r);background:#fff;color:inherit;margin:4px 0}
-input[type=checkbox],input[type=range]{width:auto;padding:0}
-button.primary{background:var(--berry);color:#fff;border:0;border-radius:var(--r);padding:12px 18px;cursor:pointer;margin-top:10px}
-button.primary:disabled{opacity:.4;cursor:default}
-button.link{background:none;border:0;color:var(--moss);text-decoration:underline;cursor:pointer;padding:4px}
-.muted{color:#5d6d68}.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.chip{display:inline-flex;gap:4px;align-items:center;background:var(--mist);border-radius:99px;padding:4px 10px}
-.tasks{list-style:none;padding:0;margin:0 0 12px}
-.tasks li{border-bottom:1px solid var(--mist)}
-.tasks label{display:flex;gap:12px;align-items:center;padding:14px 2px;cursor:pointer}
-.tasks label span{flex:1}.tasks b{background:var(--moss);color:#fff;border-radius:99px;padding:0 9px;font-size:.85rem}
-.tasks input:checked+span{text-decoration:line-through;color:#7a8a85}
-.meter{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.gauge{width:130px}.gauge path{fill:none;stroke-width:9;stroke-linecap:round}
-.gauge .trk{stroke:var(--mist)}.gauge .val{stroke:var(--berry);transition:stroke-dasharray .6s}
-.gauge text{font:600 14px Newsreader,serif;fill:var(--ink)}
-.chaos-control{display:flex;flex:1;flex-direction:column;gap:4px}.chaos-control input[type=range]{width:100%;margin:0}
-.beat{font-family:Newsreader,Georgia,serif;font-size:1.15rem;line-height:1.65;max-width:62ch;margin:0 0 28px}
-.beat h3{font-size:1.1rem;color:var(--moss)}.beat .twist{color:var(--berry);font:600 .8rem 'Instrument Sans',sans-serif}
-.card{background:#fff;border:1px solid var(--mist);border-radius:var(--r);padding:14px;margin-bottom:12px}
-#toast{position:fixed;left:50%;bottom:80px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:var(--r);opacity:0;transition:.25s;pointer-events:none;z-index:9}
-#toast.show{opacity:1;transform:translate(-50%,0)}
-.hist{display:block;width:100%;text-align:left;cursor:pointer;color:inherit}.hist h3{margin:0 0 4px}
-.badge{border-radius:99px;padding:2px 10px;font-size:.8rem;color:#fff;background:#5d6d68}.badge.good{background:var(--moss)}.badge.mid{background:#946f1a}.badge.bad{background:var(--berry)}
-.content{min-width:0}
-#banner{margin:16px 18px 0;padding:12px 14px;border-radius:var(--r);background:#fbe9ee;border:1px solid var(--berry)}#banner a{color:var(--berry)}
-@media(min-width:800px){#banner{margin:24px 32px 0}}
-.bar{height:8px;background:var(--mist);border-radius:99px;margin:8px 0}.bar i{display:block;height:100%;background:var(--moss);border-radius:99px}.bar.hot i{background:var(--berry)}
+/* Habit Storyteller: pixel-game skin. Scenes, dialogue boxes, hearts for checkmarks, item pop-ups. */
+:root{
+  --glow:#ffe9b8;--cream:#fff3dd;--sky:#f7cfae;--blush:#e3a0a4;--rose:#c9808f;--mauve:#8f5f78;
+  --plum:#5a4766;--dusk:#3d3a5a;--night:#13242c;--abyss:#0b171d;--coral:#f2705a;--sage:#9bb487;--gold:#e8b84a;
+  --mist:#2c4650;--soft:#aab8bb;--px:4px;
+  --ui:'Pixelify Sans',system-ui,sans-serif;--text:'VT323',ui-monospace,monospace;
+  --heart:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 6' shape-rendering='crispEdges'%3E%3Cpath fill='%23f2705a' d='M1 0h2v1H1zM4 0h2v1H4zM0 1h7v2H0zM1 3h5v1H1zM2 4h3v1H2zM3 5h1v1H3z'/%3E%3C/svg%3E");
+  --frame:-4px 0 0 0 var(--cream),4px 0 0 0 var(--cream),0 -4px 0 0 var(--cream),0 4px 0 0 var(--cream),10px 10px 0 0 rgba(11,23,29,.4);
+  --frame-sm:-3px 0 0 0 var(--cream),3px 0 0 0 var(--cream),0 -3px 0 0 var(--cream),0 3px 0 0 var(--cream);
+}
 
-/* Add-habit form: progressive layout (segmented buttons, labeled effort, only relevant controls shown) */
-.lbl{display:block;font-size:.8rem;color:#5d6d68;margin:10px 0 4px}
-.seg{display:flex;gap:3px;background:var(--mist);border-radius:var(--r);padding:3px;margin-bottom:10px}
+/* Scenes. Each id matches a file in css/scenes/ and a name in js/scenes.js. Add a scene: draw the svg, add a line here and in scenes.js. */
+[data-scene=city]{--scene:url(scenes/city.svg)}
+[data-scene=suburb]{--scene:url(scenes/suburb.svg)}
+[data-scene=plains]{--scene:url(scenes/plains.svg)}
+[data-scene=mountains]{--scene:url(scenes/mountains.svg)}
+[data-scene=beach]{--scene:url(scenes/beach.svg)}
+[data-scene=waterfall]{--scene:url(scenes/waterfall.svg)}
+[data-scene=cabin]{--scene:url(scenes/cabin.svg)}
+/* Text drawn straight on the scene needs the right contrast for that scene's sky. */
+body{--title:var(--abyss);--title-sh:var(--glow);--sky-fill:#c9808f}
+body[data-scene=city]{--sky-fill:#c9808f}
+body[data-scene=suburb]{--sky-fill:#b9d9e9}
+body[data-scene=plains]{--sky-fill:#f3cfa0}
+body[data-scene=mountains]{--sky-fill:#cfd0e4}
+body[data-scene=beach]{--sky-fill:#a8d4e8}
+body[data-scene=waterfall]{--sky-fill:#a9c0a6}
+body[data-scene=cabin]{--title:var(--cream);--title-sh:var(--abyss);--sky-fill:#1b2547}
+
+*{box-sizing:border-box}
+html{background:var(--abyss)}
+body{margin:0;min-height:100vh;color:var(--cream);font:1.45rem/1.25 var(--text)}
+/* The scene is scaled to the full height of the window, so the skyline and hills reach high on the screen.
+   Each scene file is a mirrored double-width tile, so it repeats sideways with no seam on wide windows.
+   (The sky color lives on this layer, not on body, because a body background would paint over it.) */
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--scene) left bottom/auto 100% repeat-x var(--sky-fill);image-rendering:pixelated}
+h1,h2,h3{font-family:var(--ui);font-weight:600;margin:.2em 0 .5em;letter-spacing:.01em}
+h2{font-size:1.9rem;color:var(--title);text-shadow:3px 3px 0 var(--title-sh)}
+h3{font-size:1.3rem}
+main>h3{color:var(--title);text-shadow:2px 2px 0 var(--title-sh);margin-top:1em}
+.card h3,.beat h3{color:var(--glow)}
+#login{min-height:100vh;display:grid;place-content:center;gap:16px;text-align:center;padding:24px}
+#login h1{font-size:clamp(2rem,8vw,3.4rem);color:var(--title);text-shadow:4px 4px 0 var(--title-sh)}
+#login p{color:var(--abyss);background:var(--glow);padding:6px 14px;margin:0 auto}
+#app{display:grid;min-height:100vh}
+main{padding:20px 18px 120px;max-width:760px;width:100%;margin:auto}
+[hidden]{display:none!important}
+.content{min-width:0}
+.px-icon{image-rendering:pixelated;flex:none}
+
+/* Navigation: a game menu with a pixel icon per tab. A heart (desktop) or a coral bar (phone) marks where you are. */
+#nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--abyss);z-index:5;border-top:var(--px) solid var(--cream)}
+.brand{display:none}
+#nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:56px;padding:6px 2px;color:#c9bac6;font:600 .72rem var(--ui);text-decoration:none}
+#nav a:hover{color:var(--glow)}
+#nav a.on{color:var(--glow);box-shadow:inset 0 4px 0 var(--coral)}
+@media(min-width:420px){#nav a{font-size:.8rem}}
+@media(min-width:800px){
+  #app{grid-template-columns:210px 1fr}
+  #nav{position:sticky;top:0;height:100vh;flex-direction:column;justify-content:flex-start;padding-top:24px;border-top:0;border-right:var(--px) solid var(--cream)}
+  #nav a{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:12px;min-height:48px;padding:10px 20px 10px 44px;font-size:1.05rem;position:relative}
+  #nav a.on{box-shadow:none}
+  #nav a.on::before{content:"";position:absolute;left:18px;top:50%;margin-top:-7px;width:16px;height:14px;background:var(--heart) center/contain no-repeat;image-rendering:pixelated}
+  .brand{display:block;color:var(--glow);font:600 1.35rem/1.15 var(--ui);padding:0 22px 22px}
+  main{padding:32px}
+}
+:focus-visible{outline:var(--px) solid var(--glow);outline-offset:2px}
+button,input,select,textarea{font:inherit}
+
+/* Dialogue-box panels: night fill, cream pixel border, hard drop shadow. */
+.card,.beat{background:var(--night);color:var(--cream);margin:4px 4px 22px;padding:16px 18px;box-shadow:var(--frame)}
+input,select,textarea{width:100%;padding:8px 10px;min-height:44px;border:3px solid var(--cream);border-radius:0;background:var(--abyss);color:var(--cream);margin:5px 0;font-size:1.3rem}
+input::placeholder,textarea::placeholder{color:#8fa0a6}
+input[type=checkbox],input[type=range]{width:auto;padding:0}
+input[type=number]{width:auto}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:28px;height:28px;min-height:0;margin:0;border:3px solid var(--cream);background:var(--abyss);cursor:pointer}
+input[type=checkbox]:checked{background:var(--heart) center/16px no-repeat var(--abyss);image-rendering:pixelated}
+input[type=range]{appearance:none;-webkit-appearance:none;height:20px;min-height:0;background:var(--abyss);border:3px solid var(--cream);width:100%;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:14px;height:28px;background:var(--coral);border:0}
+input[type=range]::-moz-range-thumb{width:14px;height:28px;background:var(--coral);border:0;border-radius:0}
+button.primary,a.primary{display:inline-block;min-height:44px;background:var(--coral);color:var(--abyss);border:0;border-radius:0;padding:10px 20px;cursor:pointer;margin:10px 8px 8px 4px;font:600 1.05rem var(--ui);text-decoration:none;
+  box-shadow:-3px 0 0 0 var(--abyss),3px 0 0 0 var(--abyss),0 -3px 0 0 var(--abyss),0 3px 0 0 var(--abyss),6px 6px 0 0 var(--abyss)}
+button.primary:hover,a.primary:hover{background:var(--glow)}
+button.primary:active,a.primary:active{transform:translate(4px,4px);box-shadow:-3px 0 0 0 var(--abyss),3px 0 0 0 var(--abyss),0 -3px 0 0 var(--abyss),0 3px 0 0 var(--abyss),2px 2px 0 0 var(--abyss)}
+button.primary:disabled{background:#6b5a6a;color:#d3c6d0;cursor:not-allowed;transform:none}
+button.link{background:none;border:0;color:var(--glow);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;cursor:pointer;padding:10px 8px;min-height:44px;font-size:1.2rem}
+button.link:hover{color:var(--coral)}
+/* Link-style buttons sitting directly on the scene get their own frame so they stay readable on every scene. */
+main>p>button.link{background:var(--night);box-shadow:var(--frame-sm);text-decoration:none;margin:8px 10px 8px 4px;padding:8px 14px}
+.muted{color:var(--soft)}
+.note,.hint{display:inline-block;background:var(--night);color:#dbe4e6;padding:6px 12px;margin:0 0 14px}
+.hint{margin:4px 0 8px}
+.hint.small{font-size:1.15rem}
+.hint a{color:var(--glow)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* Items and chips */
+.chip{position:relative;display:inline-flex;gap:8px;align-items:center;background:var(--plum);color:var(--cream);padding:2px 10px;box-shadow:var(--frame-sm);margin:3px 6px 3px 4px}
+.chip input{position:absolute;opacity:0;width:1px;height:1px;min-height:0;margin:0}
+.chip:has(input:checked){background:var(--sage);color:var(--abyss)}
+.chip:has(input:focus-visible){outline:var(--px) solid var(--glow);outline-offset:4px}
+
+/* Quest list (today's habits) */
+.progress{height:20px;background:var(--abyss);border:3px solid var(--cream);margin:0 4px 18px}
+.progress i{display:block;height:100%;background:var(--gold)}
+.tasks{list-style:none;padding:0;margin:0 4px 16px;background:var(--night);box-shadow:var(--frame)}
+.tasks li{border-bottom:3px dotted var(--mist)}
+.tasks li:last-child{border-bottom:0}
+.tasks li.muted{padding:14px 16px}
+.tasks label{display:flex;gap:14px;align-items:center;min-height:52px;padding:10px 16px;cursor:pointer}
+.tasks label:hover{background:#1b3640}
+.tasks label span{flex:1}
+.tasks b{background:var(--gold);color:var(--abyss);padding:0 8px;font:600 .9rem var(--ui);min-width:28px;text-align:center}
+.tasks input:checked+span{text-decoration:line-through;text-decoration-thickness:2px;color:#9fb0b5}
+.tasks small{font-size:1.1rem}
+
+/* Chaos meter (lives in Settings now) */
+.meter{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0 4px}
+.gauge{width:130px;flex:none;shape-rendering:crispEdges}
+.gauge path{fill:none;stroke-width:9;stroke-linecap:butt}
+.gauge .trk{stroke:var(--plum);stroke-dasharray:3 1}
+.gauge .val{stroke:var(--coral);transition:stroke-dasharray .3s steps(6)}
+.gauge text{font:600 15px var(--ui);fill:var(--glow)}
+.chaos-control{display:flex;flex:1 1 220px;flex-direction:column;gap:6px}
+
+/* Settings: grouped panels, a hint under every control, current choice shown by a heart and not by color alone. */
+fieldset{border:0;margin:0;padding:0;min-width:0}
+fieldset:disabled{opacity:.6}
+legend{font:600 1.3rem var(--ui);color:var(--glow);padding:0;margin-bottom:6px}
+.help{font-size:1.15rem;line-height:1.2;color:var(--soft);margin:4px 0 10px}
+.check{display:flex;gap:12px;align-items:center;min-height:44px;cursor:pointer}
+.scene-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:18px 16px;margin:12px 4px 6px}
+.scene-opt{position:relative;display:block;cursor:pointer;text-align:center}
+.scene-opt input{position:absolute;opacity:0;width:1px;height:1px;min-height:0;margin:0}
+.thumb{position:relative;display:block;aspect-ratio:4/3;background:var(--scene) left bottom/auto 100% no-repeat;image-rendering:pixelated;box-shadow:-3px 0 0 var(--mist),3px 0 0 var(--mist),0 -3px 0 var(--mist),0 3px 0 var(--mist)}
+.scene-opt:hover .thumb{box-shadow:-3px 0 0 var(--soft),3px 0 0 var(--soft),0 -3px 0 var(--soft),0 3px 0 var(--soft)}
+.scene-opt input:checked+.thumb{box-shadow:-4px 0 0 var(--glow),4px 0 0 var(--glow),0 -4px 0 var(--glow),0 4px 0 var(--glow)}
+.scene-opt input:checked+.thumb::after{content:"";position:absolute;top:6px;right:6px;width:21px;height:18px;background:var(--heart) center/contain no-repeat;image-rendering:pixelated;filter:drop-shadow(2px 2px 0 var(--abyss))}
+.scene-opt input:focus-visible+.thumb{outline:var(--px) solid var(--glow);outline-offset:4px}
+.scene-name{display:block;margin-top:8px;font-size:1.2rem}
+.scene-opt input:checked~.scene-name{color:var(--glow)}
+
+/* Beats (dialogue boxes) with the items each day earned */
+.beat{font-family:var(--text);font-size:1.5rem;line-height:1.3;max-width:64ch;margin-bottom:28px}
+.beat h3{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:1.15rem}
+.beat p{margin:0 0 .6em}
+.beat p:first-of-type::first-letter{color:var(--coral)}
+.day-icons{display:inline-flex;gap:3px;align-items:center}
+.beat .twist{display:inline-block;background:var(--coral);color:var(--abyss);font:600 .8rem var(--ui);padding:2px 8px;margin-bottom:8px}
+ul.found{list-style:none;margin:14px 0 0;padding:10px 0 0;border-top:3px dotted var(--mist)}
+ul.found li{display:flex;gap:12px;align-items:center;padding:4px 0}
+ul.found b{font-weight:400;color:var(--glow)}
+ul.found small,#found small{display:block;color:var(--soft);font-size:1.1rem;line-height:1.1}
+ul.hl{list-style:none;margin:0 4px 20px;padding:8px 16px;background:var(--night);box-shadow:var(--frame)}
+ul.hl li{display:flex;gap:10px;align-items:center;padding:5px 0}
+
+/* Item-found pop-up: slides in at the top, pauses while pointed at, and goes away on its own. */
+#found{position:fixed;z-index:20;top:12px;right:12px;width:min(380px,calc(100vw - 24px));visibility:hidden;opacity:0;transform:translateY(-130%);transition:transform .3s steps(5),opacity .3s steps(5),visibility 0s .3s}
+#found.show{visibility:visible;opacity:1;transform:none;transition:transform .3s steps(5),opacity .3s steps(5),visibility 0s}
+.found-box{background:var(--night);color:var(--cream);padding:10px 14px 12px;box-shadow:-4px 0 0 0 var(--gold),4px 0 0 0 var(--gold),0 -4px 0 0 var(--gold),0 4px 0 0 var(--gold),8px 8px 0 0 rgba(11,23,29,.5)}
+.found-head{display:flex;justify-content:space-between;align-items:center;font:600 1.15rem var(--ui);color:var(--gold)}
+#found .x{min-width:44px;min-height:44px;margin:-6px -10px -6px 0;background:none;border:0;color:var(--cream);font-size:2rem;line-height:1;cursor:pointer}
+#found .x:hover{color:var(--coral)}
+#found ul{list-style:none;margin:0;padding:0}
+#found li{display:flex;gap:12px;align-items:center;padding:8px 0;border-top:3px dotted var(--mist)}
+#found b{font-weight:400;color:var(--glow)}
+.slot{display:grid;place-items:center;width:56px;height:56px;flex:none;background:var(--abyss);box-shadow:var(--frame-sm)}
+#found.show .slot .px-icon{animation:pop .45s steps(5) both}
+.found-timer{height:6px;background:var(--abyss);margin-top:8px}
+.found-timer i{display:block;height:100%;background:var(--gold);animation:drain linear forwards}
+@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes drain{from{width:100%}to{width:0}}
+
+#toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--abyss);color:var(--cream);padding:10px 18px;box-shadow:var(--frame-sm);opacity:0;transition:.25s steps(4);pointer-events:none;z-index:9;max-width:calc(100vw - 24px)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.hist{display:block;width:calc(100% - 8px);text-align:left;cursor:pointer;color:inherit;border:0;font:inherit}
+.hist:hover{background:#1b3640}
+.hist h3{margin:0 0 4px}
+.badge{display:inline-block;padding:0 10px;font:600 .85rem var(--ui);color:var(--abyss);background:var(--soft)}
+.badge.good{background:var(--sage)}.badge.mid{background:var(--gold)}.badge.bad{background:var(--coral)}
+#banner{margin:16px 18px 0;padding:12px 14px;background:var(--coral);color:var(--abyss);box-shadow:-4px 0 0 0 var(--abyss),4px 0 0 0 var(--abyss),0 -4px 0 0 var(--abyss),0 4px 0 0 var(--abyss)}
+#banner a{color:var(--abyss)}
+@media(min-width:800px){#banner{margin:24px 32px 0}}
+
+/* HP-style storage bar */
+.bar{height:16px;background:var(--abyss);border:3px solid var(--cream);margin:10px 0;padding:0}
+.bar i{display:block;height:100%;background:var(--sage)}
+.bar.hot i{background:var(--coral)}
+
+/* Add-habit form */
+.lbl{display:block;font-size:1.15rem;color:var(--blush);margin:12px 0 4px}
+.seg{display:flex;gap:6px;margin-bottom:10px}
 .seg label{flex:1;position:relative;text-align:center;cursor:pointer}
-.seg input{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer}
-.seg span{display:block;padding:8px 2px;border-radius:8px;font-size:.9rem}
-.seg input:checked+span{background:#fff;font-weight:600}
-.seg label:has(input:focus-visible){outline:3px solid var(--berry);outline-offset:2px;border-radius:8px}
-.seg.effort{background:none;padding:0}
-.seg.effort span{background:#fff;border:1px solid var(--mist);font-size:.85rem}
-.seg.effort input:checked+span{background:var(--berry);border-color:var(--berry);color:#fff}
-.seg.effort small{display:block;font-size:.7rem;opacity:.8}
-.chip{position:relative}
-.chip input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
-.chip:has(input:checked){background:var(--moss);color:#fff}
-.chip:has(input:focus-visible){outline:3px solid var(--berry);outline-offset:2px}
+.seg input{position:absolute;inset:0;width:100%;height:100%;min-height:0;margin:0;padding:0;opacity:0;cursor:pointer;border:0}
+.seg span{display:block;min-height:44px;padding:9px 2px;background:var(--abyss);box-shadow:-3px 0 0 0 var(--mist),3px 0 0 0 var(--mist),0 -3px 0 0 var(--mist),0 3px 0 0 var(--mist);font-size:1.2rem}
+.seg input:checked+span{background:var(--glow);color:var(--abyss);box-shadow:var(--frame-sm)}
+.seg input:disabled+span{opacity:.45;cursor:not-allowed}
+.seg label:has(input:focus-visible){outline:var(--px) solid var(--glow);outline-offset:4px}
+.seg.effort span{font-size:1.15rem}
+.seg.effort input:checked+span{background:var(--coral)}
+.seg.effort small{display:block;font:600 .75rem var(--ui);opacity:.85}
 .when{margin-bottom:10px}
 #taskform:has([name=freq][value=daily]:checked) .when{display:none}
 #taskform:has([name=freq][value=days]:checked) .when-every{display:none}
 #taskform:has([name=freq][value=every]:checked) .when-days{display:none}
 
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.found-timer{display:none}}

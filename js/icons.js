@@ -1,0 +1,20 @@
+// Pixel item icons (10x10) drawn from small text maps, so no image files are needed.
+// "." is transparent; each other letter is a color from PAL.
+const PAL = {"o": "#0b171d", "w": "#fff3dd", "y": "#e8b84a", "Y": "#ffe9b8", "r": "#f2705a", "R": "#b3365f", "g": "#9bb487", "G": "#3d6b5e", "b": "#7fb2d9", "B": "#3d5a8a", "p": "#8f5f78", "n": "#8a5a3c", "s": "#c9d3d6", "S": "#6d7f86"};
+const MAPS = {"key": ["...oooo...","..oyyyyo..","..oy..yo..","..oy..yo..","..oyyyyo..","...ooyo...","....oyo...","....oyyo..","....oyo...","....oyyo.."],"potion": ["...oooo...","...onno...","...osso...","...osso...","..orrrro..",".orwrrrro.",".orrRrrro.",".orrrrrro.","..orrrro..","...oooo..."],"scroll": [".oooooooo.","oYYYYYYYYo",".oYYYYYYo.",".oYnnnnYo.",".oYYYYYYo.",".oYnnnYYo.",".oYYYYYYo.",".oYnnnnYo.","oYYYYYYYYo",".oooooooo."],"gem": ["..........","...oooo...","..obbbbo..",".obwbbbbo.","obbwbbbBbo",".obbbbBBo.","..obbBBo..","...obBo...","....oo....",".........."],"feather": ["......oo..",".....owgo.","....owggo.","...owgggo.","..owgggo..",".owgggo...","owgggo....","oGgo......","n.oo......","n........."],"map": ["..........","oooooooooo","oYYYoYYYYo","oYggoYYbbo","oYggoYYrYo","oYYYoYYYYo","oYYYoYYYYo","oooooooooo","..........",".........."],"coin": ["..........","...oooo...","..oYYYyo..",".oYyyyyyo.",".oYyooyyo.",".oYyooyyo.",".oYyyyyyo.","..oyyyyo..","...oooo...",".........."],"lantern": ["....oo....","...o..o...","..oSSSSo..","..oYYYYo..","..oYwwYo..","..oYwwYo..","..oYYYYo..","..oSSSSo..","...oooo...",".........."],"book": ["..........",".oooooooo.",".orrrrrRo.",".orwwwwRo.",".orrrrrRo.",".orwwwrRo.",".orrrrrRo.",".owwwwwwo.",".oooooooo.",".........."],"herb": ["......gg..",".....gggg.","..gg.gGgg.",".gggg.Ggg.",".gGgggGg..","..ggg.G...","....gGG...",".....G....",".....n....",".....n...."],"shield": ["..........",".oooooooo.",".osssssso.",".osBBBBso.",".osBYYBso.",".osBYYBso.","..osBBso..","...osso...","....oo....",".........."],"star": ["....yy....","....yy....","yyyyYYyyyy",".yyYYYYyy.","..yYYYYy..","..yyYYyy..",".yyy..yyy.",".yy....yy.","..........",".........."],"gear": ["....ss....",".s.ssss.s.","..ssssss..",".sssooSss.","sssoooosss","sssoooosss",".sssooSss.","..ssssss..",".s.ssss.s.","....ss...."]};
+export const ITEM_ICONS = ["key", "potion", "scroll", "gem", "feather", "map", "coin", "lantern", "book", "herb", "shield", "star"]; // icons the story can award
+const NAMES = {"key": "Brass key", "potion": "Moon vial", "scroll": "Old scroll", "gem": "Sky gem", "feather": "Pigeon feather", "map": "Folded map", "coin": "Lucky coin", "lantern": "Ember lantern", "book": "Worn journal", "herb": "Wild herb", "shield": "Tin shield", "star": "Fallen star"};
+export const ICONS = Object.keys(MAPS);
+const rects = rows => rows.flatMap((row, y) => { const out = []; let x = 0; while (x < 10) { const ch = row[x]; if (ch === '.') { x++; continue; } let x2 = x; while (x2 < 10 && row[x2] === ch) x2++; out.push(`<rect x="${x}" y="${y}" width="${x2 - x}" height="1" fill="${PAL[ch]}"/>`); x = x2; } return out; }).join('');
+// icon('key', 32) -> inline SVG string (decorative: pair it with a text label).
+export const icon = (key, size = 32) => `<svg class="px-icon" viewBox="0 0 10 10" width="${size}" height="${size}" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${rects(MAPS[key] || MAPS.star)}</svg>`;
+const hash = s => [...String(s)].reduce((n, c) => (n * 31 + c.charCodeAt(0)) >>> 0, 7);
+// Item for a task when the story did not supply one (older beats, or an incomplete reply).
+export const fallbackItem = task => { const k = ITEM_ICONS[hash(task) % ITEM_ICONS.length]; return { task, name: NAMES[k], icon: k }; };
+export const cleanItem = (task, o) => {
+  const name = o && typeof o.name === 'string' ? o.name.trim().slice(0, 40) : '';
+  if (!name) return fallbackItem(task);
+  return { task, name, icon: ITEM_ICONS.includes(o.icon) ? o.icon : ITEM_ICONS[hash(name) % ITEM_ICONS.length] };
+};
+// Items found in a beat, whether it was written before or after items existed.
+export const itemsOf = b => Array.isArray(b.items) && b.items.length ? b.items : (b.tasks || []).map(fallbackItem);
