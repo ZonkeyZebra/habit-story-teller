@@ -1,7 +1,10 @@
-// Cloudflare Worker: verifies Google sign-in, stores per-user data in KV, proxies Anthropic.
-// The Anthropic key exists ONLY as a Worker secret (ANTHROPIC_API_KEY).
+// Cloudflare Worker: Google sign-in once, then its own 30-day session token; per-user data in KV; Anthropic proxy.
+// Secrets (never in the repo): ANTHROPIC_API_KEY, SESSION_SECRET, ALLOWED_EMAILS.
 const J = (o, s = 200, h = {}) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json', ...h } });
 const MAX_BYTES = 500000; // keep in sync with STORAGE_LIMIT_BYTES in js/config.js
+const SESSION_DAYS = 30;
+const DENY = { expired: 'Session expired', notallowed: 'This Google account has not been invited yet', invalid: 'Unauthorized' };
+const deny = (code, cors) => J({ error: DENY[code] || DENY.invalid, code }, 401, cors);
 
 export default {
   async fetch(req, env) {
@@ -13,9 +16,22 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     if (!ok) return J({ error: 'Forbidden origin' }, 403, cors);
     try {
-      const u = await verify(req, env);
-      if (!u) return J({ error: 'Unauthorized' }, 401, cors);
+      if (!env.SESSION_SECRET) return J({ error: 'Server is missing its session secret' }, 500, cors);
+      const token = (req.headers.get('Authorization') || '').replace('Bearer ', '');
       const path = new URL(req.url).pathname;
+
+      // Sign-in: trade a Google ID token for our own session token.
+      if (path === '/api/session' && req.method === 'POST') {
+        const g = await verifyGoogle(token, env);
+        if (g.code) return deny(g.code, cors);
+        return J({ token: await issue(g.user, env), days: SESSION_DAYS }, 200, cors);
+      }
+
+      // Everything else needs a valid session token.
+      const s = await verifySession(token, env);
+      if (s.code) return deny(s.code, cors);
+      const u = s.user;
+
       if (path === '/api/data') {
         const key = 'u:' + u.sub;
         if (req.method === 'GET') return J({ data: JSON.parse((await env.DATA.get(key)) || 'null') }, 200, cors);
@@ -48,14 +64,43 @@ export default {
   }
 };
 
-async function verify(req, env) {
-  const t = (req.headers.get('Authorization') || '').replace('Bearer ', '');
-  if (!t) return null;
-  const r = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(t));
-  if (!r.ok) return null;
+// ---- Sessions: "hs1.<payload>.<signature>", payload = {sub, email, exp}, signed with HMAC-SHA256 ----
+const enc = new TextEncoder();
+const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+const hmacKey = env => crypto.subtle.importKey('raw', enc.encode(env.SESSION_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+// The email allowlist is rechecked on every request, so removing someone takes effect right away.
+const permitted = (env, email) => {
+  const list = (env.ALLOWED_EMAILS || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+  return !list.length || list.includes(String(email).toLowerCase());
+};
+
+async function issue(user, env) {
+  const payload = b64u(enc.encode(JSON.stringify({ sub: user.sub, email: user.email, exp: Math.floor(Date.now() / 1000) + SESSION_DAYS * 86400 })));
+  const sig = await crypto.subtle.sign('HMAC', await hmacKey(env), enc.encode(payload));
+  return `hs1.${payload}.${b64u(sig)}`;
+}
+
+async function verifySession(token, env) {
+  try {
+    const [tag, payload, sig] = token.split('.');
+    if (tag !== 'hs1' || !payload || !sig) return { code: 'invalid' };
+    if (!(await crypto.subtle.verify('HMAC', await hmacKey(env), unb64u(sig), enc.encode(payload)))) return { code: 'invalid' };
+    const p = JSON.parse(new TextDecoder().decode(unb64u(payload)));
+    if (!p.sub || p.exp * 1000 < Date.now()) return { code: 'expired' };
+    if (!permitted(env, p.email)) return { code: 'notallowed' };
+    return { user: p };
+  } catch { return { code: 'invalid' }; }
+}
+
+// Google ID token -> { user } or { code }. Used only when signing in.
+async function verifyGoogle(token, env) {
+  if (!token) return { code: 'invalid' };
+  const r = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(token));
+  if (!r.ok) return { code: 'expired' };
   const p = await r.json();
-  if (p.aud !== env.GOOGLE_CLIENT_ID || p.email_verified !== 'true' || +p.exp * 1000 < Date.now()) return null;
-  const allow = (env.ALLOWED_EMAILS || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
-  if (allow.length && !allow.includes(p.email.toLowerCase())) return null;
-  return p;
+  if (p.aud !== env.GOOGLE_CLIENT_ID || p.email_verified !== 'true') return { code: 'invalid' };
+  if (+p.exp * 1000 < Date.now()) return { code: 'expired' };
+  if (!permitted(env, p.email)) return { code: 'notallowed' };
+  return { user: { sub: p.sub, email: p.email } };
 }
