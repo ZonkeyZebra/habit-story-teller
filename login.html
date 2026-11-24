@@ -4,8 +4,22 @@
 <title>Sign in | Habit Storyteller</title>
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/login.css">
 <script src="https://accounts.google.com/gsi/client" async defer></script></head>
 <body data-scene="city">
-<section id="login"><h1>Habit Storyteller</h1><p>Do your habits. Your story writes itself.</p><div id="signin"></div></section>
+<section id="login"><h1>Habit Storyteller</h1><p>Do your habits. Your story writes itself.</p>
+<p id="login-msg" aria-live="polite" hidden></p>
+<div id="signin"></div>
+<div class="card login-card">
+  <h3>What signing in does</h3>
+  <ul>
+    <li>There is no password to make. Google confirms it is you.</li>
+    <li>Google shares only your email address and basic profile with this app.</li>
+    <li>The app cannot read your Gmail, Drive, contacts, or anything else in your account.</li>
+    <li>Your habits and stories are saved to your account, so they follow you to any device.</li>
+  </ul>
+  <div><a href="privacy.html">Read the privacy note</a></div>
+</div>
+</section>
 <script type="module" src="js/login.js"></script>
 </body></html>

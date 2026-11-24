@@ -1,0 +1,9 @@
+/* Sign-in page extras: status message and the "what signing in does" box. Uses the colors from styles.css. */
+#login #login-msg{max-width:46ch}
+#login #login-msg.error{background:var(--coral)}
+#signin{justify-self:center;min-height:44px}
+.login-card{max-width:46ch;text-align:left;justify-self:center;margin:8px 4px}
+.login-card h3{margin:0 0 .5em}
+.login-card ul{margin:0 0 .6em;padding-left:1.2em}
+.login-card li{margin:0 0 .5em}
+.login-card a{color:var(--glow)}
